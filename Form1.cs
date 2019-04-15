@@ -14,7 +14,7 @@ namespace What_To_Eat
     {
         public string str = "";
         public List<string> maybeList = new List<string> { "pizza", "mexican", "vegan", "thai", "sushi" };
-        
+
         public Form1(string s)
         {
             this.KeyPreview = true;
@@ -40,20 +40,20 @@ namespace What_To_Eat
 
         void Form1_KeyPress(object sender, KeyPressEventArgs e)
         {
-                MessageBox.Show("Form.KeyPress: '" +
-                    e.KeyChar.ToString() + "' pressed.");
+            MessageBox.Show("Form.KeyPress: '" +
+                e.KeyChar.ToString() + "' pressed.");
 
-                switch (e.KeyChar)
-                {
-                    case (char)49:
-                    case (char)52:
-                    case (char)55:
-                        MessageBox.Show("Form.KeyPress: '" +
-                            e.KeyChar.ToString() + "' consumed.");
-                        e.Handled = true;
-                        break;
-                }
-            
+            switch (e.KeyChar)
+            {
+                case (char)49:
+                case (char)52:
+                case (char)55:
+                    MessageBox.Show("Form.KeyPress: '" +
+                        e.KeyChar.ToString() + "' consumed.");
+                    e.Handled = true;
+                    break;
+            }
+
         }
 
 
@@ -66,15 +66,15 @@ namespace What_To_Eat
 
             int fontTypeIndex = 0;
 
-            if(fontType == "Bold") { fontTypeIndex = 1; }
+            if (fontType == "Bold") { fontTypeIndex = 1; }
             else if (fontType == "Italic") { fontTypeIndex = 2; }
 
             TextFormatFlags flags = TextFormatFlags.Bottom | TextFormatFlags.EndEllipsis;
-            
+
             TextRenderer.DrawText(e.Graphics, str, fonts[fontTypeIndex],
-            new Point(x,y),
+            new Point(x, y),
             SystemColors.ControlText, flags);
-            
+
         }
 
         private void tnrAppTimer_Tick(object sender, EventArgs e)
