@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,22 +51,19 @@ namespace What_To_Eat
 
                 for (int i = 0; i < maybeList.Count; i++)
                 {
-                    write(e, (i + 1) + ". " + maybeList[i], 50, 100 + (20 * i), "Italic", 10);
+                    write(e, (i + 1) + ". " + maybeList[i], 55, 75 + (20 * i), "Italic", 10);
                 }
+
+                File.WriteAllText(@"c:../../maybeList.json", JsonConvert.SerializeObject(maybeList));
             }
             else
             {
-                write(e, "incomplete index = " + index, 50, 50, "Italic", 10);
+                //write(e, "incomplete index = " + index, 50, 50, "Italic", 10);
                 button1.Text = maybeList[index];
                 button2.Text = maybeList[index + 1];
 
+                write(e, "Which sounds better?", 140, 175, "Bold", 24);
                 write(e, "or", 280, 275, "Bold", 20);
-
-                try
-                {
-                    write(e, evaluations[evaluations.Count - 1], 400, 400, "Bold", 20);
-                }
-                catch (Exception f) { }
             }
 
         }
