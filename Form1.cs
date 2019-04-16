@@ -12,14 +12,22 @@ namespace What_To_Eat
 {
     public partial class Form1 : Form
     {
-        public string str = "";
-        public List<string> maybeList = new List<string> { "pizza", "mexican", "vegan", "thai", "sushi" };
+        public List<string> maybeList = new List<string> { };
+        public List<string> evaluations = new List<string> { };
+        public int index = 0;
 
-        public Form1(string s)
+
+
+        public string readout = "readout";
+
+
+        public Form1(List<string> mL)
         {
             this.KeyPreview = true;
             InitializeComponent();
-            str = s;
+            maybeList = mL;
+            button1.Text = maybeList[0];
+            button2.Text = maybeList[1];
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -32,8 +40,32 @@ namespace What_To_Eat
 
         public void Form1_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
         {
+            if (index == -1)
+            {
+                write(e, "evaluation complete!", 50, 50, "Italic", 10);
+                write(e, "________________", 50, 51, "Italic", 10);
+                button1.Hide();
+                button2.Hide();
 
-            write(e, str, 200, 200, "Bold", 20);
+                for (int i = 0; i < maybeList.Count; i++)
+                {
+                    write(e, (i + 1) + ". " + maybeList[i], 50, 100 + (20 * i), "Italic", 10);
+                }
+            }
+            else
+            {
+                write(e, "incomplete index = " + index, 50, 50, "Italic", 10);
+                button1.Text = maybeList[index];
+                button2.Text = maybeList[index + 1];
+
+                write(e, "or", 280, 275, "Bold", 20);
+
+                try
+                {
+                    write(e, evaluations[evaluations.Count - 1], 400, 400, "Bold", 20);
+                }
+                catch (Exception f) { }
+            }
 
         }
 
@@ -56,6 +88,28 @@ namespace What_To_Eat
 
         }
 
+
+        public int IncompleteIndex(List<string> maybeList, List<string> evaluations)
+        {
+            for (int i = 0; i < maybeList.Count - 1; i++)
+            {
+                if (!evaluations.Contains(maybeList[i] + ">" + maybeList[i + 1]))
+                {
+                    readout = "eval does NOT contain " + maybeList[i + 1] + ">" + maybeList[i];
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        public List<string> SwapStrings(List<string> list, int index1, int index2)
+        {
+            string temp = list[index1];
+            list[index1] = list[index2];
+            list[index2] = temp;
+
+            return list;
+        }
 
         public void write(System.Windows.Forms.PaintEventArgs e, string str, int x, int y, string fontType, int fontSize)
         {
@@ -84,7 +138,16 @@ namespace What_To_Eat
 
         private void button1_Click(object sender, EventArgs e)
         {
-            button1.Text = "meme";
+            evaluations.Add(button1.Text + ">" + button2.Text);
+            index = IncompleteIndex(maybeList, evaluations);
+            this.Invalidate();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            evaluations.Add(button2.Text + ">" + button1.Text);
+            maybeList = SwapStrings(maybeList, index, index + 1);
+            index = IncompleteIndex(maybeList, evaluations);
             this.Invalidate();
         }
     }

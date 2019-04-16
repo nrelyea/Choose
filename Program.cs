@@ -14,9 +14,17 @@ namespace What_To_Eat
         [STAThread]
         static void Main()
         {
+            List<string> maybeList = new List<string> { "pizza", "mexican", "vegan", "thai", "sushi", "subway" };
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1("meme king"));
+            Application.Run(new Form1(maybeList));
+
+
+
+
+
+
 
             //Console.Read();
         }
