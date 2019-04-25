@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -14,22 +15,24 @@ namespace What_To_Eat
 {
     public partial class Form1 : Form
     {
-        public List<string> maybeList = new List<string> { };
+        public List<string> rinaList = new List<string> { };
+        public List<string> nathanList = new List<string> { };
         public List<string> evaluations = new List<string> { };
         public int index = 0;
 
-
+        public string state = "start";
+        public bool nathanNext = false;
+        public bool finalNext = false;
 
         public string readout = "readout";
 
 
-        public Form1(List<string> mL)
+        public Form1(List<string> rL, List<string> nL)
         {
-            this.KeyPreview = true;
+            this.KeyPreview = false;
             InitializeComponent();
-            maybeList = mL;
-            button1.Text = maybeList[0];
-            button2.Text = maybeList[1];
+            rinaList = rL;
+            nathanList = nL;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -42,29 +45,77 @@ namespace What_To_Eat
 
         public void Form1_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
         {
-            if (index == -1)
+            if (state == "start")
             {
-                write(e, "evaluation complete!", 50, 50, "Italic", 10);
-                write(e, "________________", 50, 51, "Italic", 10);
-                button1.Hide();
-                button2.Hide();
-
-                for (int i = 0; i < maybeList.Count; i++)
+                write(e, "Which quiz?", 190, 175, "Bold", 24);
+                write(e, "or", 280, 275, "Bold", 20);
+                button1.Text = "Rina";
+                button2.Text = "Rina / Nathan";
+            }
+            else if (state != "nathan")
+            {
+                if (index == -1)
                 {
-                    write(e, (i + 1) + ". " + maybeList[i], 55, 75 + (20 * i), "Italic", 10);
-                }
+                    write(e, "evaluation complete!", 50, 50, "Italic", 10);
+                    write(e, "________________", 50, 51, "Italic", 10);
+                    button1.Hide();
+                    if (state == "rina")
+                    {
+                        button2.Hide();
+                    }
+                    else
+                    {
+                        button2.Text = "Continue";
+                        nathanNext = true;
+                    }
 
-                File.WriteAllText(@"c:../../maybeList.json", JsonConvert.SerializeObject(maybeList));
+                    Thread.Sleep(0);
+                    for (int i = 0; i < rinaList.Count; i++)
+                    {
+                        write(e, (i + 1) + ". " + rinaList[i], 55, 75 + (20 * i), "Italic", 10);
+                    }
+
+                    File.WriteAllText(@"c:../../rinaList.json", JsonConvert.SerializeObject(rinaList));
+                }
+                else
+                {
+                    button1.Text = rinaList[index];
+                    button2.Text = rinaList[index + 1];
+
+                    write(e, "Rina, which sounds better?", 90, 175, "Bold", 24);
+                    write(e, "or", 280, 275, "Bold", 20);
+                }
             }
             else
             {
-                //write(e, "incomplete index = " + index, 50, 50, "Italic", 10);
-                button1.Text = maybeList[index];
-                button2.Text = maybeList[index + 1];
 
-                write(e, "Which sounds better?", 140, 175, "Bold", 24);
-                write(e, "or", 280, 275, "Bold", 20);
+                if (index == -1)
+                {
+                    write(e, "evaluation complete!", 50, 50, "Italic", 10);
+                    write(e, "________________", 50, 51, "Italic", 10);
+                    button1.Hide();
+                    button2.Text = "Combined List";
+                    finalNext = true;
+
+
+                    for (int i = 0; i < nathanList.Count; i++)
+                    {
+                        write(e, (i + 1) + ". " + nathanList[i], 55, 75 + (20 * i), "Italic", 10);
+                    }
+
+                    File.WriteAllText(@"c:../../nathanList.json", JsonConvert.SerializeObject(nathanList));
+                }
+                else
+                {
+                    button1.Text = nathanList[index];
+                    button2.Text = nathanList[index + 1];
+
+                    write(e, "Nathan, which sounds better?", 70, 175, "Bold", 24);
+                    write(e, "or", 280, 275, "Bold", 20);
+                }
+
             }
+
 
         }
 
@@ -88,13 +139,13 @@ namespace What_To_Eat
         }
 
 
-        public int IncompleteIndex(List<string> maybeList, List<string> evaluations)
+        public int IncompleteIndex(List<string> rinaList, List<string> evaluations)
         {
-            for (int i = 0; i < maybeList.Count - 1; i++)
+            for (int i = 0; i < rinaList.Count - 1; i++)
             {
-                if (!evaluations.Contains(maybeList[i] + ">" + maybeList[i + 1]))
+                if (!evaluations.Contains(rinaList[i] + ">" + rinaList[i + 1]))
                 {
-                    readout = "eval does NOT contain " + maybeList[i + 1] + ">" + maybeList[i];
+                    readout = "eval does NOT contain " + rinaList[i + 1] + ">" + rinaList[i];
                     return i;
                 }
             }
@@ -137,16 +188,54 @@ namespace What_To_Eat
 
         private void button1_Click(object sender, EventArgs e)
         {
-            evaluations.Add(button1.Text + ">" + button2.Text);
-            index = IncompleteIndex(maybeList, evaluations);
+            if (state == "start")
+            {
+                state = "rina";
+            }
+            else if (state == "rina" || state == "both")
+            {
+                evaluations.Add(button1.Text + ">" + button2.Text);
+                index = IncompleteIndex(rinaList, evaluations);
+            }
+            else
+            {
+                evaluations.Add(button1.Text + ">" + button2.Text);
+                index = IncompleteIndex(nathanList, evaluations);
+            }
             this.Invalidate();
+
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            evaluations.Add(button2.Text + ">" + button1.Text);
-            maybeList = SwapStrings(maybeList, index, index + 1);
-            index = IncompleteIndex(maybeList, evaluations);
+            if (state == "start")
+            {
+                state = "both";
+            }
+            else if (nathanNext)
+            {
+                evaluations.Clear();
+                button1.Show();
+                index = 0;
+                nathanNext = false;
+                state = "nathan";
+            }
+            else if (finalNext)
+            {
+                MessageBox.Show("pibba");
+            }
+            else if (state == "rina" || state == "both")
+            {
+                evaluations.Add(button2.Text + ">" + button1.Text);
+                rinaList = SwapStrings(rinaList, index, index + 1);
+                index = IncompleteIndex(rinaList, evaluations);
+            }
+            else
+            {
+                evaluations.Add(button2.Text + ">" + button1.Text);
+                nathanList = SwapStrings(nathanList, index, index + 1);
+                index = IncompleteIndex(nathanList, evaluations);
+            }
             this.Invalidate();
         }
     }
