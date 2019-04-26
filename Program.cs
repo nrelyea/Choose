@@ -19,8 +19,7 @@ namespace What_To_Eat
             bool read = true;
 
 
-            //List<string> maybeList = new List<string> { "2","44","13","78","4","45","46","1","73","72","41" };
-
+            ///*
             List<string> rinaList = new List<string> {
                 "Pizza",
                 "Mexican",
@@ -38,7 +37,9 @@ namespace What_To_Eat
                 "Tin Shed",
                 "Ramen",
                 "New Seasons",
-                "Burrito"
+                "Burrito",
+                "Bagel",
+                "Italian"
 
             };
 
@@ -59,9 +60,30 @@ namespace What_To_Eat
                 "Tin Shed",
                 "Ramen",
                 "New Seasons",
-                "Burrito"
+                "Burrito",
+                "Bagel",
+                "Italian"
 
             };
+            //*/
+
+            /*
+            List<string> rinaList = new List<string> {
+                "Thai",
+                "Pizza",
+                "Vegan",
+                "Italian",
+                "Mexican"              
+            };
+
+            List<string> nathanList = new List<string> {
+                "Mexican",
+                "Pizza",
+                "Italian",
+                "Thai",
+                "Vegan"                             
+            };
+            */
 
             if (read)
             {
@@ -71,14 +93,7 @@ namespace What_To_Eat
                 nathanList = JsonConvert.DeserializeObject<List<string>>(json);
             }
 
-            /*
-            string currentTime = DateTime.Now.TimeOfDay.ToString();
-            currentTime = currentTime.Substring(0, currentTime.Length - 11);
-            Console.WriteLine(currentTime);
-            Console.WriteLine("minutes: " + TimeToMinutes(currentTime));
 
-            AddNewOption();
-            */
 
 
 
@@ -87,21 +102,22 @@ namespace What_To_Eat
             Application.Run(new Form1(rinaList, nathanList));
 
 
-
+            //List<string> combinedList = CombineLists(rinaList, nathanList);
 
 
             //Console.Read();
         }
 
+    }
 
-
-        //Converts a time of day to minutes since midnight
-        static int TimeToMinutes(string time)
+    public class CombinedItem
+    {
+        public string Option { get; set; }
+        public int Score { get; set; }
+        public CombinedItem(string option, int score)
         {
-
-            int minutes = 60 * Int32.Parse(time.Substring(0, 2)) + Int32.Parse(time.Substring(3, 2));
-
-            return minutes;
+            Option = option;
+            Score = score;
         }
     }
 }

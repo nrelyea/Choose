@@ -52,7 +52,7 @@ namespace What_To_Eat
                 button1.Text = "Rina";
                 button2.Text = "Rina / Nathan";
             }
-            else if (state != "nathan")
+            else if (state != "nathan" && state != "final")
             {
                 if (index == -1)
                 {
@@ -86,7 +86,7 @@ namespace What_To_Eat
                     write(e, "or", 280, 275, "Bold", 20);
                 }
             }
-            else
+            else if (state != "final")
             {
 
                 if (index == -1)
@@ -115,6 +115,19 @@ namespace What_To_Eat
                 }
 
             }
+            else
+            {
+                write(e, "  Combined Lists: ", 50, 50, "Italic", 10);
+                write(e, "________________", 50, 51, "Italic", 10);
+                button1.Hide();
+                button2.Hide();
+
+                List<CombinedItem> finalList = CombineLists(rinaList, nathanList);
+                for (int i = 0; i < finalList.Count; i++)
+                {
+                    write(e, (i + 1) + ". " + finalList[i].Option + "    (score = " + finalList[i].Score + ")", 55, 75 + (20 * i), "Italic", 10);
+                }
+            }
 
 
         }
@@ -138,6 +151,32 @@ namespace What_To_Eat
 
         }
 
+        public List<CombinedItem> CombineLists(List<string> rL, List<string> nL)
+        {
+            List<CombinedItem> combinedItemList = new List<CombinedItem> { };
+
+            for (int i = 0; i < rL.Count; i++)
+            {
+                combinedItemList.Add(new CombinedItem(rL[i], Score(rL, rL[i]) + Score(nL, rL[i])));
+            }
+
+            combinedItemList = combinedItemList.OrderByDescending(o => o.Score).ToList();
+
+            for (int i = 0; i < combinedItemList.Count - 1; i++)
+            {
+                if (combinedItemList[i].Score == combinedItemList[i + 1].Score && rL.IndexOf(combinedItemList[i + 1].Option) < nL.IndexOf(combinedItemList[i + 1].Option))
+                {
+                    combinedItemList = SwapItems(combinedItemList, i, i + 1);
+                }
+            }
+
+            return combinedItemList;
+        }
+
+        public int Score(List<string> lst, string str)
+        {
+            return lst.Count - lst.IndexOf(str);
+        }
 
         public int IncompleteIndex(List<string> rinaList, List<string> evaluations)
         {
@@ -150,6 +189,19 @@ namespace What_To_Eat
                 }
             }
             return -1;
+        }
+
+        public List<CombinedItem> SwapItems(List<CombinedItem> list, int index1, int index2)
+        {
+            CombinedItem temp = new CombinedItem(list[index1].Option, list[index1].Score);
+
+            list[index1].Option = list[index2].Option;
+            list[index1].Score = list[index2].Score;
+
+            list[index2].Option = temp.Option;
+            list[index2].Score = temp.Score;
+
+            return list;
         }
 
         public List<string> SwapStrings(List<string> list, int index1, int index2)
@@ -222,7 +274,9 @@ namespace What_To_Eat
             }
             else if (finalNext)
             {
-                MessageBox.Show("pibba");
+                finalNext = false;
+                state = "final";
+
             }
             else if (state == "rina" || state == "both")
             {
